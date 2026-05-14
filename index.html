@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ma Hua 麻花小屋 — Noord-Chinese Streetfood · Eikstraat · Leuven</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
+  <style>
+    :root {
+      --black:      #0d0d0d;
+      --card:       #1a1a1a;
+      --cream:      #faf7f2;
+      --offwhite:   #f5f0e8;
+      --red:        #c0392b;
+      --red-light:  #d9412e;
+      --gold:       #d4a017;
+      --gold-light: #e0b528;
+      --gold-dim:   rgba(212,160,23,0.13);
+      --muted:      rgba(245,240,232,0.55);
+      --border:     rgba(212,160,23,0.18);
+      --white:      #ffffff;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--black); font-family: 'DM Sans', sans-serif; color: var(--offwhite); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(26px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulseGlow {
+      0%,100% { opacity: 0.7; }
+      50%      { opacity: 1; }
+    }
+
+    .fade-up { opacity: 0; transform: translateY(26px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── NAVBAR ── */
+    #navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: var(--black); border-bottom: 1px solid rgba(212,160,23,0.12);
+      padding: 0 40px; transition: box-shadow 0.3s;
+    }
+    #navbar.scrolled { box-shadow: 0 4px 24px rgba(0,0,0,0.7); }
+    .nav-inner {
+      max-width: 1200px; margin: 0 auto;
+      height: 66px; display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    }
+    .nav-logo { text-decoration: none; line-height: 1; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0; }
+    .logo-mahua {
+      font-family: 'Playfair Display', serif; font-style: italic; font-weight: 700;
+      font-size: 26px; color: var(--gold);
+    }
+    .logo-chinese {
+      font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: 13px;
+      color: var(--red); margin-left: 8px; letter-spacing: 0.08em;
+    }
+    .logo-tag {
+      font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 11px;
+      color: var(--muted); margin-left: 10px; letter-spacing: 0.05em;
+      display: none;
+    }
+    @media (min-width: 900px) { .logo-tag { display: inline; } }
+    .nav-links { display: flex; align-items: center; gap: 30px; list-style: none; }
+    .nav-links a {
+      font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 14px;
+      color: var(--offwhite); text-decoration: none; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-right { display: flex; align-items: center; gap: 14px; }
+    .nav-cta {
+      background: var(--red); color: var(--white);
+      padding: 10px 22px; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13px;
+      letter-spacing: 0.04em; text-decoration: none;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .nav-cta:hover { background: var(--red-light); transform: translateY(-1px); }
+    .lang-toggle { display: flex; gap: 3px; }
+    .lang-btn {
+      background: transparent; border: 1.5px solid rgba(212,160,23,0.28);
+      color: var(--muted); padding: 4px 10px; border-radius: 6px;
+      font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 11px;
+      letter-spacing: 0.08em; cursor: pointer; transition: all 0.2s;
+    }
+    .lang-btn.active { background: var(--gold); color: var(--black); border-color: var(--gold); }
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 4px;
+    }
+    .hamburger span { width: 22px; height: 2px; background: var(--offwhite); display: block; transition: all 0.25s; }
+    .mobile-menu {
+      display: none; flex-direction: column;
+      background: var(--black); border-top: 1px solid rgba(212,160,23,0.1);
+    }
+    .mobile-menu a {
+      padding: 14px 40px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 14px;
+      color: var(--offwhite); text-decoration: none; border-bottom: 1px solid rgba(212,160,23,0.08);
+      transition: color 0.2s;
+    }
+    .mobile-menu a:hover { color: var(--gold); }
+    .mobile-menu.open { display: flex; }
+    @media (max-width: 768px) {
+      #navbar { padding: 0 20px; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .nav-cta { display: none; }
+    }
+
+    /* ── HERO ── */
+    #hero {
+      width: 100%; min-height: 100vh; position: relative;
+      display: flex; align-items: center;
+      background-image: url('images/hero.png');
+      background-size: cover; background-position: center;
+      overflow: hidden;
+    }
+    #hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(0,0,0,0.60);
+    }
+    .hero-watermark {
+      position: absolute; right: -2vw; top: 50%; transform: translateY(-50%);
+      font-size: clamp(220px, 35vw, 480px); line-height: 1;
+      color: var(--offwhite); opacity: 0.045;
+      font-family: sans-serif; font-weight: 900;
+      pointer-events: none; user-select: none; z-index: 0;
+    }
+    .hero-content {
+      position: relative; z-index: 1;
+      max-width: 700px; width: 100%;
+      padding: 120px 40px 80px;
+      margin-left: max(40px, calc((100vw - 1200px) / 2));
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(212,160,23,0.12); border: 1px solid rgba(212,160,23,0.38);
+      border-radius: 99px; padding: 7px 20px; margin-bottom: 20px;
+      font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 12px;
+      color: var(--gold); letter-spacing: 0.04em;
+      animation: fadeUp 0.75s ease 0.1s both;
+    }
+    .hero-chinese-mark {
+      font-family: sans-serif; font-size: 14px; letter-spacing: 0.22em;
+      color: var(--red); margin-bottom: 12px; display: block;
+      animation: fadeUp 0.75s ease 0.18s both;
+    }
+    .hero-title {
+      font-family: 'Playfair Display', serif; font-style: italic; font-weight: 700;
+      font-size: clamp(76px,12vw,148px); line-height: 0.88; letter-spacing: -0.02em;
+      color: var(--offwhite); margin-bottom: 22px;
+      animation: fadeUp 0.75s ease 0.26s both;
+    }
+    .hero-sub {
+      font-family: 'Playfair Display', serif; font-style: italic; font-weight: 400;
+      font-size: clamp(15px,1.9vw,20px); color: var(--gold);
+      margin-bottom: 28px; line-height: 1.55;
+      animation: fadeUp 0.75s ease 0.36s both;
+    }
+    .hero-icons {
+      display: flex; align-items: center; gap: 22px; flex-wrap: wrap; margin-bottom: 36px;
+      font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: 13px;
+      color: rgba(245,240,232,0.55);
+      animation: fadeUp 0.75s ease 0.46s both;
+    }
+    .hero-icons span { display: flex; align-items: center; gap: 6px; }
+    .hero-btns {
+      display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 30px;
+      animation: fadeUp 0.75s ease 0.56s both;
+    }
+    .btn-red {
+      background: var(--red); color: var(--white); padding: 15px 32px; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 14px;
+      letter-spacing: 0.04em; text-decoration: none; border: none; cursor: pointer;
+      display: inline-block; transition: background 0.2s, transform 0.2s;
+      box-shadow: 0 6px 24px rgba(192,57,43,0.4);
+    }
+    .btn-red:hover { background: var(--red-light); transform: translateY(-2px); }
+    .btn-gold-outline {
+      background: transparent; color: var(--gold); padding: 14px 32px; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 14px;
+      letter-spacing: 0.04em; text-decoration: none; display: inline-block;
+      border: 2px solid rgba(212,160,23,0.5);
+      transition: border-color 0.2s, background 0.2s, transform 0.2s;
+    }
+    .btn-gold-outline:hover { border-color: var(--gold); background: var(--gold-dim); transform: translateY(-2px); }
+    .hero-open {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 13px;
+      letter-spacing: 0.06em; color: rgba(245,240,232,0.45);
+      animation: fadeUp 0.75s ease 0.66s both;
+    }
+    .pulse-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--gold); box-shadow: 0 0 8px var(--gold);
+      animation: pulseGlow 2s ease-in-out infinite; flex-shrink: 0;
+    }
+    @media (max-width: 768px) {
+      .hero-content { padding: 100px 24px 60px; margin-left: 0; }
+      .hero-watermark { font-size: 52vw; right: -5vw; opacity: 0.035; }
+    }
+
+    /* ── HIDDEN GEM STRIP ── */
+    #strip { background: var(--card); padding: 60px 40px; border-top: 1px solid rgba(212,160,23,0.1); border-bottom: 1px solid rgba(212,160,23,0.1); }
+    .strip-grid {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+    }
+    .strip-card {
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      padding: 34px 20px; border-radius: 12px;
+      background: rgba(212,160,23,0.04); border: 1px solid var(--border);
+      text-align: center; transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .strip-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(212,160,23,0.12); }
+    .strip-emoji { font-size: 30px; }
+    .strip-title {
+      font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 15px;
+      color: var(--offwhite);
+    }
+    .strip-sub {
+      font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 13px;
+      color: var(--muted); line-height: 1.55;
+    }
+    @media (max-width: 768px) {
+      #strip { padding: 44px 20px; }
+      .strip-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+    }
+    @media (max-width: 480px) { .strip-grid { grid-template-columns: 1fr; } }
+
+    /* ── SHARED ── */
+    .section-inner { max-width: 1200px; margin: 0 auto; }
+    .section-label {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+    }
+    .section-label::before, .section-label::after {
+      content: ''; flex: 0 0 28px; height: 1px; background: rgba(212,160,23,0.3);
+    }
+    .section-label span {
+      font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: 11px;
+      letter-spacing: 0.24em; text-transform: uppercase; color: var(--gold);
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif; font-weight: 700; font-style: italic;
+      font-size: clamp(36px,5vw,62px); line-height: 1; letter-spacing: -0.02em;
+      margin-bottom: 48px;
+    }
+    .accent-gold { color: var(--gold); }
+    .accent-red  { color: var(--red); }
+
+    /* ── MENU ── */
+    #menu { background: var(--cream); padding: 100px 40px; }
+    #menu .section-label::before, #menu .section-label::after { background: rgba(192,57,43,0.28); }
+    #menu .section-label span { color: var(--red); }
+    #menu .section-title { color: #1a0800; }
+    .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    .menu-card {
+      background: var(--white); border-radius: 12px;
+      border: 1px solid rgba(212,160,23,0.18);
+      padding: 30px 26px;
+      box-shadow: 0 2px 16px rgba(212,160,23,0.07);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .menu-card:hover { transform: translateY(-4px); box-shadow: 0 10px 36px rgba(212,160,23,0.13); }
+    .menu-emoji { font-size: 28px; margin-bottom: 12px; display: block; }
+    .menu-name {
+      font-family: 'Playfair Display', serif; font-weight: 600; font-size: 19px;
+      color: #1a0800; margin-bottom: 2px;
+    }
+    .menu-chinese {
+      font-family: sans-serif; font-size: 13px; color: var(--red);
+      letter-spacing: 0.1em; margin-bottom: 10px; display: block;
+    }
+    .menu-desc {
+      font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 14px;
+      color: #6b5040; line-height: 1.7;
+    }
+    .menu-special-card {
+      background: #1a0800; border-radius: 12px;
+      border: 1px solid rgba(212,160,23,0.25);
+      padding: 30px 26px;
+      box-shadow: 0 2px 20px rgba(212,160,23,0.1);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .menu-special-card:hover { transform: translateY(-4px); box-shadow: 0 10px 36px rgba(212,160,23,0.18); }
+    .menu-special-card .menu-name { color: var(--offwhite); }
+    .menu-special-card .menu-desc { color: rgba(245,240,232,0.65); }
+    .menu-special-badge {
+      display: inline-block; background: var(--gold); color: var(--black);
+      font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 10px;
+      letter-spacing: 0.1em; padding: 3px 10px; border-radius: 99px;
+      margin-bottom: 14px;
+    }
+    .menu-price-note {
+      text-align: center; margin-top: 36px;
+      font-family: 'Playfair Display', serif; font-style: italic; font-weight: 400;
+      font-size: 18px; color: var(--red);
+    }
+    @media (max-width: 768px) {
+      #menu { padding: 72px 20px; }
+      .menu-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── ABOUT ── */
+    #about { background: var(--black); padding: 100px 40px; }
+    .about-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center;
+    }
+    .about-img {
+      border-radius: 12px; overflow: hidden;
+      border: 3px solid var(--gold);
+      box-shadow: 0 16px 56px rgba(212,160,23,0.16);
+    }
+    .about-img img { width: 100%; display: block; aspect-ratio: 4/5; object-fit: cover; }
+    .about-italic {
+      font-family: 'Playfair Display', serif; font-style: italic; font-weight: 400;
+      font-size: 19px; color: var(--gold); margin-bottom: 22px; line-height: 1.4;
+    }
+    .about-body {
+      font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 16px;
+      line-height: 1.85; color: var(--muted); margin-bottom: 36px;
+    }
+    .about-stats { display: flex; gap: 32px; flex-wrap: wrap; }
+    .about-stat-val {
+      font-family: 'Playfair Display', serif; font-weight: 700;
+      font-size: 20px; color: var(--gold); display: block; margin-bottom: 3px;
+    }
+    .about-stat-label {
+      font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: 11px;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+    }
+    @media (max-width: 768px) {
+      #about { padding: 72px 20px; }
+      .about-inner { grid-template-columns: 1fr; gap: 40px; }
+    }
+
+    /* ── GALLERY ── */
+    #gallery { background: var(--card); padding: 100px 40px; }
+    .gallery-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    }
+    .gallery-item {
+      border-radius: 12px; overflow: hidden;
+      border: 2px solid transparent;
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    }
+    .gallery-item:hover {
+      border-color: var(--gold);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(212,160,23,0.2);
+    }
+    .gallery-item img {
+      width: 100%; display: block; aspect-ratio: 4/3; object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .gallery-item:hover img { transform: scale(1.05); }
+    @media (max-width: 768px) {
+      #gallery { padding: 72px 20px; }
+      .gallery-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── REVIEWS ── */
+    #reviews { background: var(--cream); padding: 100px 40px; }
+    #reviews .section-label::before, #reviews .section-label::after { background: rgba(192,57,43,0.28); }
+    #reviews .section-label span { color: var(--red); }
+    #reviews .section-title { color: #1a0800; }
+    .reviews-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 36px;
+    }
+    .review-card {
+      background: var(--white); border-radius: 12px; padding: 28px 24px;
+      border: 1px solid rgba(212,160,23,0.14);
+      box-shadow: 0 2px 16px rgba(212,160,23,0.06);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .review-card:hover { transform: translateY(-4px); box-shadow: 0 10px 36px rgba(212,160,23,0.12); }
+    .review-stars { color: var(--gold); font-size: 16px; letter-spacing: 2px; margin-bottom: 14px; }
+    .review-text {
+      font-family: 'Playfair Display', serif; font-style: italic; font-weight: 400;
+      font-size: 15px; line-height: 1.7; color: #1a0800; margin-bottom: 16px;
+    }
+    .review-source {
+      font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 11px;
+      letter-spacing: 0.1em; text-transform: uppercase; color: #8a7060;
+    }
+    .reviews-links { display: flex; gap: 16px; flex-wrap: wrap; }
+    .reviews-link {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 13px;
+      color: var(--red); text-decoration: none;
+      border: 1.5px solid rgba(192,57,43,0.22); padding: 10px 20px; border-radius: 8px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .reviews-link:hover { background: rgba(192,57,43,0.06); border-color: var(--red); }
+    @media (max-width: 768px) {
+      #reviews { padding: 72px 20px; }
+      .reviews-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── LOCATION ── */
+    #location { background: var(--black); padding: 100px 40px; }
+    .location-inner { max-width: 900px; margin: 0 auto; }
+    .location-intro {
+      font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 17px;
+      color: var(--muted); line-height: 1.8; margin-bottom: 36px; max-width: 640px;
+    }
+    .location-intro em {
+      font-family: 'Playfair Display', serif; font-style: italic;
+      color: var(--gold); font-weight: 400;
+    }
+    .map-wrap { border-radius: 12px; overflow: hidden; border: 1px solid rgba(212,160,23,0.12); }
+    .map-wrap iframe { display: block; }
+    @media (max-width: 768px) { #location { padding: 72px 20px; } }
+
+    /* ── CONTACT & HOURS ── */
+    #contact { background: #0a0600; padding: 100px 40px; }
+    .contact-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: start;
+    }
+    .contact-label span { color: rgba(212,160,23,0.65); }
+    .contact-label::before, .contact-label::after { background: rgba(212,160,23,0.18); }
+    .contact-title {
+      font-family: 'Playfair Display', serif; font-weight: 700; font-style: italic;
+      font-size: clamp(28px,3.5vw,46px); line-height: 1.1; letter-spacing: -0.02em;
+      color: var(--offwhite); margin-bottom: 32px;
+    }
+    .contact-info { display: flex; flex-direction: column; gap: 16px; margin-bottom: 28px; }
+    .contact-row { display: flex; gap: 14px; align-items: flex-start; }
+    .contact-icon {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: rgba(212,160,23,0.07); border: 1px solid rgba(212,160,23,0.14);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      color: var(--gold); font-size: 13px; margin-top: 2px;
+    }
+    .contact-val {
+      font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 15px;
+      color: var(--muted); line-height: 1.55;
+    }
+    .hours-block {
+      background: rgba(212,160,23,0.05); border: 1px solid rgba(212,160,23,0.12);
+      border-radius: 10px; padding: 20px 22px; margin-bottom: 16px;
+    }
+    .hours-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid rgba(212,160,23,0.07);
+    }
+    .hours-row:last-child { border-bottom: none; }
+    .hours-day {
+      font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: 14px;
+      color: rgba(245,240,232,0.5);
+    }
+    .hours-time {
+      font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 14px;
+      color: var(--gold);
+    }
+    .contact-note {
+      font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 13px;
+      color: rgba(245,240,232,0.38); line-height: 1.6;
+    }
+    .form-title {
+      font-family: 'Playfair Display', serif; font-style: italic; font-weight: 400;
+      font-size: 28px; color: var(--offwhite); margin-bottom: 26px;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block; font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: 10px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(245,240,232,0.32); margin-bottom: 7px;
+    }
+    .form-input, .form-textarea {
+      width: 100%; background: rgba(245,240,232,0.05);
+      border: 1px solid rgba(212,160,23,0.15);
+      border-radius: 8px; padding: 13px 15px;
+      font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 15px;
+      color: rgba(245,240,232,0.88); outline: none; transition: border-color 0.2s;
+    }
+    .form-input:focus, .form-textarea:focus { border-color: rgba(212,160,23,0.45); }
+    .form-textarea { resize: vertical; min-height: 110px; }
+    .form-submit {
+      margin-top: 8px; padding: 13px 30px; background: var(--red); color: var(--white);
+      border: none; border-radius: 8px; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13px;
+      letter-spacing: 0.06em; transition: background 0.2s, transform 0.2s;
+      box-shadow: 0 4px 16px rgba(192,57,43,0.35);
+    }
+    .form-submit:hover { background: var(--red-light); transform: translateY(-1px); }
+    .form-success {
+      display: none; padding: 20px;
+      background: rgba(212,160,23,0.08); border: 1px solid rgba(212,160,23,0.22);
+      border-radius: 8px; text-align: center;
+      font-family: 'Playfair Display', serif; font-style: italic; font-size: 18px;
+      color: var(--gold);
+    }
+    @media (max-width: 768px) {
+      #contact { padding: 72px 20px; }
+      .contact-inner { grid-template-columns: 1fr; gap: 48px; }
+    }
+
+    /* ── FOOTER ── */
+    #footer {
+      background: var(--black); border-top: 1px solid rgba(212,160,23,0.1);
+      padding: 36px 40px 28px;
+    }
+    .footer-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+    }
+    .footer-logo-name {
+      font-family: 'Playfair Display', serif; font-style: italic; font-weight: 700;
+      font-size: 22px; color: var(--gold); text-decoration: none;
+    }
+    .footer-logo-cn {
+      font-family: sans-serif; font-size: 14px; color: var(--red);
+      letter-spacing: 0.1em; margin-left: 8px;
+    }
+    .footer-tagline {
+      font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 11px;
+      letter-spacing: 0.06em; color: rgba(245,240,232,0.3); margin-top: 3px;
+    }
+    .footer-copy {
+      font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 11px;
+      letter-spacing: 0.06em; color: rgba(245,240,232,0.18); text-align: center;
+    }
+    .footer-links { display: flex; gap: 16px; align-items: center; }
+    .footer-links a {
+      font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: 13px;
+      color: var(--gold); text-decoration: none; transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--gold-light); }
+    @media (max-width: 768px) {
+      #footer { padding: 28px 20px; }
+      .footer-inner { flex-direction: column; align-items: flex-start; gap: 14px; }
+      .footer-copy { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ━━━ NAVBAR ━━━ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <span class="logo-mahua">Ma Hua</span>
+      <span class="logo-chinese">麻花小屋</span>
+      <span class="logo-tag">Chinese Street Food · Leuven</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#menu"     data-lang="nav_menu">Menu</a></li>
+      <li><a href="#about"    data-lang="nav_about">Over ons</a></li>
+      <li><a href="#location" data-lang="nav_location">Locatie</a></li>
+      <li><a href="#contact"  data-lang="nav_contact">Contact</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang('nl')">NL</button>
+        <button class="lang-btn" onclick="setLang('en')">EN</button>
+      </div>
+      <a href="#location" class="nav-cta" data-lang="nav_cta">Kom langs</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#menu"     data-lang="nav_menu"     onclick="closeMobile()">Menu</a>
+    <a href="#about"    data-lang="nav_about"    onclick="closeMobile()">Over ons</a>
+    <a href="#location" data-lang="nav_location" onclick="closeMobile()">Locatie</a>
+    <a href="#contact"  data-lang="nav_contact"  onclick="closeMobile()">Contact</a>
+    <a href="#location" data-lang="nav_cta" style="color:var(--gold);font-weight:600;" onclick="closeMobile()">Kom langs</a>
+  </div>
+</nav>
+
+<!-- ━━━ HERO ━━━ -->
+<section id="hero">
+  <div class="hero-watermark" aria-hidden="true">麻</div>
+  <div class="hero-content">
+    <div class="hero-badge">⭐ 5.0/5 TripAdvisor · 4.5/5 Google · #1 Chinese Leuven</div>
+    <span class="hero-chinese-mark">麻花小屋</span>
+    <h1 class="hero-title">Ma Hua</h1>
+    <p class="hero-sub" data-lang="hero_sub">Authentieke Noord-Chinese streetfood, verstopt in het hart van Leuven</p>
+    <div class="hero-icons">
+      <span>🥟 <span data-lang="icon_hand">Handgemaakt</span></span>
+      <span>🍜 <span data-lang="icon_noodle">Dagverse noodles</span></span>
+      <span>🏮 <span data-lang="icon_gem">Verborgen parel</span></span>
+    </div>
+    <div class="hero-btns">
+      <a href="#menu" class="btn-red" data-lang="hero_cta1">Bekijk ons menu</a>
+      <a href="#menu" class="btn-gold-outline" data-lang="hero_cta2">Dagmenu bekijken</a>
+    </div>
+    <div class="hero-open">
+      <div class="pulse-dot"></div>
+      <span data-lang="hero_open">Vandaag open · 11:00 – 19:00</span>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━ HIDDEN GEM STRIP ━━━ -->
+<section id="strip">
+  <div class="strip-grid">
+    <div class="strip-card fade-up">
+      <div class="strip-emoji">🏮</div>
+      <div class="strip-title" data-lang="strip1_title">Verborgen parel</div>
+      <div class="strip-sub" data-lang="strip1_sub">Verstopt in een smal straatje naast de Grote Markt</div>
+    </div>
+    <div class="strip-card fade-up" style="transition-delay:0.1s">
+      <div class="strip-emoji">👩‍🍳</div>
+      <div class="strip-title" data-lang="strip2_title">Handgemaakt</div>
+      <div class="strip-sub" data-lang="strip2_sub">Alles vers bereid door de eigenaresse zelf</div>
+    </div>
+    <div class="strip-card fade-up" style="transition-delay:0.2s">
+      <div class="strip-emoji">🍜</div>
+      <div class="strip-title" data-lang="strip3_title">Dagelijks wisselend menu</div>
+      <div class="strip-sub" data-lang="strip3_sub">Kom elke dag terug voor nieuwe gerechten</div>
+    </div>
+    <div class="strip-card fade-up" style="transition-delay:0.3s">
+      <div class="strip-emoji">🌱</div>
+      <div class="strip-title" data-lang="strip4_title">Vegetarische opties</div>
+      <div class="strip-sub" data-lang="strip4_sub">Aanpasbaar naar jouw wensen</div>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━ MENU ━━━ -->
+<section id="menu">
+  <div class="section-inner">
+    <div class="section-label fade-up"><span data-lang="menu_label">Ons Aanbod</span></div>
+    <h2 class="section-title fade-up"><span class="accent-red">Ons</span> <span class="accent-gold">Menu</span></h2>
+    <div class="menu-grid">
+      <!-- Street food menu (fixed) -->
+      <div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--red);margin-bottom:20px;" data-lang="menu_col1_label">VAST MENU — STREETFOOD</div>
+        <div class="menu-card fade-up" style="margin-bottom:20px;">
+          <span class="menu-emoji">🥟</span>
+          <div class="menu-name">Ma Hua</div>
+          <span class="menu-chinese">麻花</span>
+          <p class="menu-desc" data-lang="menu1_desc">Gefrituurd deegbrood — het signatuurgerecht dat de zaak zijn naam gaf.</p>
+        </div>
+        <div class="menu-card fade-up" style="margin-bottom:20px;transition-delay:0.05s">
+          <span class="menu-emoji">🥙</span>
+          <div class="menu-name">Baozi</div>
+          <span class="menu-chinese">包子</span>
+          <p class="menu-desc" data-lang="menu2_desc">Gestoomde gevulde broodjes, vers bereid op bestelling.</p>
+        </div>
+        <div class="menu-card fade-up" style="margin-bottom:20px;transition-delay:0.1s">
+          <span class="menu-emoji">🍜</span>
+          <div class="menu-name">Suanlafen</div>
+          <span class="menu-chinese">酸辣粉</span>
+          <p class="menu-desc" data-lang="menu3_desc">Pikante zure glasnoedelsoep — vol smaak, verwarmend.</p>
+        </div>
+        <div class="menu-card fade-up" style="transition-delay:0.15s">
+          <span class="menu-emoji">🍝</span>
+          <div class="menu-name">Zhajiangmian</div>
+          <span class="menu-chinese">炸酱面</span>
+          <p class="menu-desc" data-lang="menu4_desc">Beijing-stijl noodles met sojasaus — een Chinese klassieker.</p>
+        </div>
+      </div>
+      <!-- Daily special menu -->
+      <div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;" data-lang="menu_col2_label">DAGMENU — WISSELEND</div>
+        <div class="menu-special-card fade-up" style="margin-bottom:20px;">
+          <span class="menu-special-badge">🌟 DAGSPECIAL</span>
+          <div class="menu-name" data-lang="menu5_name">Dagspecial</div>
+          <p class="menu-desc" data-lang="menu5_desc">Elke dag een ander gerecht — altijd vers, altijd verrassend. Vraag de eigenaresse wat er vandaag op het menu staat!</p>
+        </div>
+        <div class="menu-special-card fade-up" style="margin-bottom:20px;transition-delay:0.05s">
+          <span class="menu-emoji">🍜</span>
+          <div class="menu-name" data-lang="menu6_name">Handgemaakte noodles</div>
+          <p class="menu-desc" data-lang="menu6_desc">Elke noodle met de hand gemaakt — verse bouillon, pure smaak.</p>
+        </div>
+        <div class="menu-special-card fade-up" style="transition-delay:0.1s">
+          <span class="menu-emoji">🌱</span>
+          <div class="menu-name" data-lang="menu7_name">Vegetarische opties</div>
+          <p class="menu-desc" data-lang="menu7_desc">Vertel ons je wensen — wij passen het aan.</p>
+        </div>
+        <p class="menu-price-note fade-up" style="margin-top:24px;" data-lang="menu_price">Gemiddeld €10 per persoon</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━ ABOUT ━━━ -->
+<section id="about">
+  <div class="about-inner">
+    <div class="about-img fade-up">
+      <img src="images/food-1.png" alt="Ma Hua gerechten Leuven" />
+    </div>
+    <div class="fade-up" style="transition-delay:0.15s">
+      <div class="section-label" style="margin-bottom:16px;"><span data-lang="about_label">Over Ons</span></div>
+      <h2 class="section-title" style="font-size:clamp(28px,4vw,48px);margin-bottom:12px;color:var(--offwhite);" data-lang="about_title">Een verborgen parel in Leuven.</h2>
+      <p class="about-italic" data-lang="about_italic">Noord-Chinese streetfood, gemaakt met hart en ziel.</p>
+      <p class="about-body" data-lang="about_body">Ma Hua (麻花小屋) is meer dan een restaurant. Het is een privékeuken-ervaring midden in Leuven. De eigenaresse bereidt alles met de hand, van verse noodles tot gestoomde broodjes. Met slechts 6 zitplaatsen is er altijd persoonlijk contact — ze luistert naar jouw wensen en past gerechten aan. Het dagmenu verandert elke dag, want echte Chinese keuken volgt de seizoenen.</p>
+      <div class="about-stats">
+        <div>
+          <span class="about-stat-val">5.0★</span>
+          <span class="about-stat-label">TripAdvisor</span>
+        </div>
+        <div>
+          <span class="about-stat-val" data-lang="stat2_val">Handgemaakt</span>
+          <span class="about-stat-label" data-lang="stat2_label">alles vers</span>
+        </div>
+        <div>
+          <span class="about-stat-val">6</span>
+          <span class="about-stat-label" data-lang="stat3_label">zitplaatsen</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━ GALLERY ━━━ -->
+<section id="gallery">
+  <div class="section-inner">
+    <div class="section-label fade-up"><span data-lang="gallery_label">Onze Gerechten</span></div>
+    <h2 class="section-title fade-up" style="color:var(--offwhite);" data-lang="gallery_title">Onze <span class="accent-gold">Gerechten</span></h2>
+    <div class="gallery-grid">
+      <div class="gallery-item fade-up">
+        <img src="images/food-1.png" alt="Ma Hua gerecht" />
+      </div>
+      <div class="gallery-item fade-up" style="transition-delay:0.12s">
+        <img src="images/food-2.png" alt="Ma Hua gerecht" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━ REVIEWS ━━━ -->
+<section id="reviews">
+  <div class="section-inner">
+    <div class="section-label fade-up"><span data-lang="reviews_label">Reviews</span></div>
+    <h2 class="section-title fade-up" data-lang="reviews_title">Wat onze <span class="accent-red">gasten</span> zeggen</h2>
+    <div class="reviews-grid">
+      <div class="review-card fade-up">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"BEST Chinese restaurant in Leuven! The owner listens to your demands and customizes your food. Love the private kitchen kind of vibe here."</p>
+        <div class="review-source">Google Review</div>
+      </div>
+      <div class="review-card fade-up" style="transition-delay:0.1s">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"A necessary experience when in Leuven. Amazing discovery! The cook is extremely personable and cares deeply about your experience. Everything is homemade and fresh."</p>
+        <div class="review-source">Google Review</div>
+      </div>
+      <div class="review-card fade-up" style="transition-delay:0.2s">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"Fantastic experience — authentic food made freshly by the owner and a very cheerful conversation! 10/10 would recommend."</p>
+        <div class="review-source">Google Review</div>
+      </div>
+    </div>
+    <div class="reviews-links fade-up">
+      <a href="https://www.tripadvisor.com" target="_blank" rel="noopener" class="reviews-link">
+        <i class="fa-solid fa-star"></i> TripAdvisor 5.0
+      </a>
+      <a href="https://www.google.com/maps?q=Eikstraat+2,+3000+Leuven" target="_blank" rel="noopener" class="reviews-link">
+        <i class="fa-solid fa-location-dot"></i> Google Maps
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━ LOCATION ━━━ -->
+<section id="location">
+  <div class="location-inner">
+    <div class="section-label fade-up"><span data-lang="loc_label">Locatie</span></div>
+    <h2 class="section-title fade-up" style="color:var(--offwhite);" data-lang="loc_title">Kom ons <span class="accent-gold">vinden</span></h2>
+    <p class="location-intro fade-up" data-lang="loc_intro">Ma Hua is verborgen in Eikstraat 2 — een smal steegje vlak naast de Grote Markt. <em>Moeilijk te vinden, maar absoluut de moeite waard.</em></p>
+    <div class="map-wrap fade-up">
+      <iframe
+        src="https://www.google.com/maps?q=Eikstraat+2,+3000+Leuven&output=embed"
+        width="100%" height="350"
+        style="border:0;border-radius:12px;"
+        allowfullscreen loading="lazy"
+        title="Ma Hua Leuven"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━ CONTACT & HOURS ━━━ -->
+<section id="contact">
+  <div class="contact-inner">
+    <!-- Left -->
+    <div class="fade-up">
+      <div class="section-label contact-label" style="margin-bottom:16px;"><span data-lang="contact_label">Contact &amp; Uren</span></div>
+      <h2 class="contact-title" data-lang="contact_title">Eikstraat 2, Leuven</h2>
+      <div class="contact-info">
+        <div class="contact-row">
+          <div class="contact-icon"><i class="fa-solid fa-location-dot"></i></div>
+          <div class="contact-val">Eikstraat 2, 3000 Leuven<br><span style="font-size:12px;color:rgba(245,240,232,0.3);" data-lang="contact_near">Vlakbij Grote Markt &amp; Stadhuis</span></div>
+        </div>
+        <div class="contact-row">
+          <div class="contact-icon"><i class="fa-solid fa-utensils"></i></div>
+          <div class="contact-val" data-lang="contact_seats">6 zitplaatsen · Takeaway beschikbaar</div>
+        </div>
+        <div class="contact-row">
+          <div class="contact-icon"><i class="fa-solid fa-leaf"></i></div>
+          <div class="contact-val" data-lang="contact_veg">Vegetarische opties op aanvraag</div>
+        </div>
+      </div>
+      <div class="hours-block">
+        <div class="hours-row">
+          <span class="hours-day" data-lang="hours_everyday">Elke dag</span>
+          <span class="hours-time">11:00 – 19:00</span>
+        </div>
+      </div>
+      <p class="contact-note" data-lang="contact_note">€10 gemiddeld per persoon · Geen reservering nodig</p>
+    </div>
+    <!-- Right: Form -->
+    <div class="fade-up" style="transition-delay:0.15s">
+      <div class="form-title" data-lang="form_title">Stuur een bericht</div>
+      <form id="contact-form" onsubmit="submitForm(event)">
+        <div class="form-group">
+          <label class="form-label" data-lang="form_name">Naam</label>
+          <input class="form-input" type="text" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" type="email" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-lang="form_message">Bericht</label>
+          <textarea class="form-textarea" required></textarea>
+        </div>
+        <button type="submit" class="form-submit" data-lang="form_submit">Verstuur →</button>
+      </form>
+      <div class="form-success" id="form-success" data-lang="form_success">Bedankt! We antwoorden zo snel mogelijk.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━ FOOTER ━━━ -->
+<footer id="footer">
+  <div class="footer-inner">
+    <div>
+      <div>
+        <a href="#" class="footer-logo-name">Ma Hua</a>
+        <span class="footer-logo-cn">麻花小屋</span>
+      </div>
+      <div class="footer-tagline" data-lang="footer_tagline">Noord-Chinese Streetfood · Leuven</div>
+    </div>
+    <div class="footer-copy">© 2026 · Eikstraat 2 · 3000 Leuven</div>
+    <div class="footer-links">
+      <a href="https://www.tripadvisor.com" target="_blank" rel="noopener"><i class="fa-solid fa-star"></i> TripAdvisor</a>
+      <a href="https://www.google.com/maps?q=Eikstraat+2,+3000+Leuven" target="_blank" rel="noopener"><i class="fa-solid fa-location-dot"></i> Google Maps</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ─── TRANSLATIONS ─────────────────────────────────────────── */
+const T = {
+  nl: {
+    nav_menu: 'Menu', nav_about: 'Over ons', nav_location: 'Locatie', nav_contact: 'Contact',
+    nav_cta: 'Kom langs',
+    hero_sub: 'Authentieke Noord-Chinese streetfood, verstopt in het hart van Leuven',
+    icon_hand: 'Handgemaakt', icon_noodle: 'Dagverse noodles', icon_gem: 'Verborgen parel',
+    hero_cta1: 'Bekijk ons menu', hero_cta2: 'Dagmenu bekijken',
+    hero_open: 'Vandaag open · 11:00 – 19:00',
+    strip1_title: 'Verborgen parel',          strip1_sub: 'Verstopt in een smal straatje naast de Grote Markt',
+    strip2_title: 'Handgemaakt',              strip2_sub: 'Alles vers bereid door de eigenaresse zelf',
+    strip3_title: 'Dagelijks wisselend menu', strip3_sub: 'Kom elke dag terug voor nieuwe gerechten',
+    strip4_title: 'Vegetarische opties',      strip4_sub: 'Aanpasbaar naar jouw wensen',
+    menu_label: 'Ons Aanbod',
+    menu_col1_label: 'VAST MENU — STREETFOOD',
+    menu_col2_label: 'DAGMENU — WISSELEND',
+    menu1_desc: 'Gefrituurd deegbrood — het signatuurgerecht dat de zaak zijn naam gaf.',
+    menu2_desc: 'Gestoomde gevulde broodjes, vers bereid op bestelling.',
+    menu3_desc: 'Pikante zure glasnoedelsoep — vol smaak, verwarmend.',
+    menu4_desc: 'Beijing-stijl noodles met sojasaus — een Chinese klassieker.',
+    menu5_name: 'Dagspecial',
+    menu5_desc: 'Elke dag een ander gerecht — altijd vers, altijd verrassend. Vraag de eigenaresse wat er vandaag op het menu staat!',
+    menu6_name: 'Handgemaakte noodles',
+    menu6_desc: 'Elke noodle met de hand gemaakt — verse bouillon, pure smaak.',
+    menu7_name: 'Vegetarische opties',
+    menu7_desc: 'Vertel ons je wensen — wij passen het aan.',
+    menu_price: 'Gemiddeld €10 per persoon',
+    about_label: 'Over Ons',
+    about_title: 'Een verborgen parel in Leuven.',
+    about_italic: 'Noord-Chinese streetfood, gemaakt met hart en ziel.',
+    about_body: 'Ma Hua (麻花小屋) is meer dan een restaurant. Het is een privékeuken-ervaring midden in Leuven. De eigenaresse bereidt alles met de hand, van verse noodles tot gestoomde broodjes. Met slechts 6 zitplaatsen is er altijd persoonlijk contact — ze luistert naar jouw wensen en past gerechten aan. Het dagmenu verandert elke dag, want echte Chinese keuken volgt de seizoenen.',
+    stat2_val: 'Handgemaakt', stat2_label: 'alles vers', stat3_label: 'zitplaatsen',
+    gallery_label: 'Onze Gerechten',
+    gallery_title: 'Onze Gerechten',
+    reviews_label: 'Reviews',
+    reviews_title: 'Wat onze gasten zeggen',
+    loc_label: 'Locatie',
+    loc_title: 'Kom ons vinden',
+    loc_intro: 'Ma Hua is verborgen in Eikstraat 2 — een smal steegje vlak naast de Grote Markt. Moeilijk te vinden, maar absoluut de moeite waard.',
+    contact_label: 'Contact & Uren',
+    contact_title: 'Eikstraat 2, Leuven',
+    contact_near: 'Vlakbij Grote Markt & Stadhuis',
+    contact_seats: '6 zitplaatsen · Takeaway beschikbaar',
+    contact_veg: 'Vegetarische opties op aanvraag',
+    hours_everyday: 'Elke dag',
+    contact_note: '€10 gemiddeld per persoon · Geen reservering nodig',
+    form_title: 'Stuur een bericht',
+    form_name: 'Naam', form_message: 'Bericht', form_submit: 'Verstuur →',
+    form_success: 'Bedankt! We antwoorden zo snel mogelijk.',
+    footer_tagline: 'Noord-Chinese Streetfood · Leuven',
+  },
+  en: {
+    nav_menu: 'Menu', nav_about: 'About', nav_location: 'Location', nav_contact: 'Contact',
+    nav_cta: 'Visit us',
+    hero_sub: 'Authentic Northern Chinese street food, hidden in the heart of Leuven',
+    icon_hand: 'Handmade', icon_noodle: 'Fresh daily noodles', icon_gem: 'Hidden gem',
+    hero_cta1: 'View our menu', hero_cta2: "Today's special",
+    hero_open: 'Open today · 11:00 – 19:00',
+    strip1_title: 'Hidden gem',           strip1_sub: 'Tucked in a narrow alley beside Grote Markt',
+    strip2_title: 'Handmade',             strip2_sub: 'Everything freshly prepared by the owner herself',
+    strip3_title: 'Daily changing menu',  strip3_sub: 'Come back every day for new dishes',
+    strip4_title: 'Vegetarian options',   strip4_sub: 'Customizable to your wishes',
+    menu_label: 'Our Offer',
+    menu_col1_label: 'FIXED MENU — STREET FOOD',
+    menu_col2_label: 'DAILY MENU — CHANGING',
+    menu1_desc: 'Fried dough twists — the signature dish that gave the restaurant its name.',
+    menu2_desc: 'Steamed filled buns, freshly prepared to order.',
+    menu3_desc: 'Hot & sour glass noodle soup — full of flavour, warming.',
+    menu4_desc: 'Beijing-style noodles with soy paste — a Chinese classic.',
+    menu5_name: 'Daily Special',
+    menu5_desc: "A different dish every day — always fresh, always surprising. Ask the owner what's on the menu today!",
+    menu6_name: 'Handmade noodles',
+    menu6_desc: 'Every noodle handmade — fresh broth, pure flavour.',
+    menu7_name: 'Vegetarian options',
+    menu7_desc: "Tell us your preferences — we'll adapt for you.",
+    menu_price: 'Average €10 per person',
+    about_label: 'About Us',
+    about_title: 'A hidden gem in Leuven.',
+    about_italic: 'Northern Chinese street food, made with heart and soul.',
+    about_body: "Ma Hua (麻花小屋) is more than a restaurant. It's a private kitchen experience in the heart of Leuven. The owner prepares everything by hand, from fresh noodles to steamed buns. With only 6 seats, there's always personal contact — she listens to your wishes and adapts dishes. The daily menu changes every day, because real Chinese cooking follows the seasons.",
+    stat2_val: 'Handmade', stat2_label: 'all fresh', stat3_label: 'seats',
+    gallery_label: 'Our Food',
+    gallery_title: 'Our Food',
+    reviews_label: 'Reviews',
+    reviews_title: 'What our guests say',
+    loc_label: 'Location',
+    loc_title: 'Find us',
+    loc_intro: 'Ma Hua is hidden on Eikstraat 2 — a narrow alley right beside Grote Markt. Hard to find, absolutely worth it.',
+    contact_label: 'Contact & Hours',
+    contact_title: 'Eikstraat 2, Leuven',
+    contact_near: 'Steps from Grote Markt & Town Hall',
+    contact_seats: '6 seats · Takeaway available',
+    contact_veg: 'Vegetarian options on request',
+    hours_everyday: 'Every day',
+    contact_note: 'Average €10 per person · No reservation needed',
+    form_title: 'Send a message',
+    form_name: 'Name', form_message: 'Message', form_submit: 'Send →',
+    form_success: "Thanks! We'll get back to you soon.",
+    footer_tagline: 'Northern Chinese Street Food · Leuven',
+  }
+};
+
+let currentLang = localStorage.getItem('mh-lang') || 'nl';
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('mh-lang', lang);
+  document.querySelectorAll('[data-lang]').forEach(el => {
+    const key = el.getAttribute('data-lang');
+    if (T[lang][key] !== undefined) el.textContent = T[lang][key];
+  });
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.toLowerCase() === lang);
+  });
+}
+
+/* ─── NAVBAR SCROLL ─────────────────────────────────────────── */
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+/* ─── HAMBURGER ─────────────────────────────────────────────── */
+document.getElementById('hamburger').addEventListener('click', () => {
+  document.getElementById('mobile-menu').classList.toggle('open');
+});
+function closeMobile() { document.getElementById('mobile-menu').classList.remove('open'); }
+
+/* ─── CONTACT FORM ──────────────────────────────────────────── */
+function submitForm(e) {
+  e.preventDefault();
+  document.getElementById('contact-form').style.display = 'none';
+  const s = document.getElementById('form-success');
+  s.style.display = 'block';
+  s.textContent = T[currentLang].form_success;
+}
+
+/* ─── SCROLL ANIMATIONS ─────────────────────────────────────── */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+/* ─── INIT ──────────────────────────────────────────────────── */
+setLang(currentLang);
+</script>
+</body>
+</html>
